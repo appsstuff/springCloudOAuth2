@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
@@ -21,30 +22,28 @@ import brave.sampler.Sampler;
 @SpringBootApplication
 @RestController
 @EnableResourceServer
-@EnableAuthorizationServer
 @EnableEurekaClient
 @EnableDiscoveryClient
+@EnableAuthorizationServer
 public class AuthServerApplication {
 
+	private static final Logger lOGGER = Logger.getLogger(AuthServerApplication.class.getName());
 
-	 private static final Logger lOGGER = Logger.getLogger(AuthServerApplication.class.getName());
+	@Bean
+	public Sampler alwaysSampler() {
+		return Sampler.ALWAYS_SAMPLE;
+	}
 
-    @RequestMapping(value = { "/user" }, produces = "application/json")
-    public Map<String, Object> user(OAuth2Authentication aouth2) {
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("user", aouth2.getUserAuthentication().getPrincipal());
-        userInfo.put("authorities", AuthorityUtils.authorityListToSet(aouth2.getUserAuthentication().getAuthorities()));
-        return userInfo;
-    }
+	@RequestMapping(value = { "/user" }, produces = "application/json")
+	public Map<String, Object> user(OAuth2Authentication aouth2) {
+		Map<String, Object> userInfo = new HashMap<>();
+		userInfo.put("user", aouth2.getUserAuthentication().getPrincipal());
+		userInfo.put("authorities", AuthorityUtils.authorityListToSet(aouth2.getUserAuthentication().getAuthorities()));
+		return userInfo;
+	}
 
-	  @Bean
-	    public Sampler alwaysSampler() {
-	        return Sampler.ALWAYS_SAMPLE;
-	    }
-	 
-
-    public static void main(String[] args) {
-        SpringApplication.run(AuthServerApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(AuthServerApplication.class, args);
+	}
 
 }
